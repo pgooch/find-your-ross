@@ -20,23 +20,25 @@ export default function App() {
     <Router>
       <div>
         
-        <nav>
-          <ul>
-            <li>
-              <Link to="/">Home</Link>
+        <nav className="container w-1/1 mx-auto my-5">
+          <ul className="text-center">
+            <li className="inline-block">
+              <Link className="p-3" to="/">Home</Link>
             </li>
-            <li>
-              <Link to="/about">About</Link>
+            <li className="inline-block">
+              <Link className="p-3" to="/about">About</Link>
             </li>
-            <li>
-              <Link to="/this-is-a-404-error">Error</Link>
+            <li className="inline-block">
+              <Link className="p-3" to="/this-is-a-404-error">Error</Link>
             </li>
           </ul>
         </nav>
 
         <Switch>
           <Route exact path="/about">
-            <About />
+            <div className="container w-1/1 mx-auto my-5">
+              This is, or would be if I bothered to write anything, the About page, talking about what this is and why this is.
+            </div>
           </Route>
           <Route exact path="/">
             <FilterContext.Provider value={{getFilters,setFilters}}>
@@ -45,22 +47,12 @@ export default function App() {
             </FilterContext.Provider>
           </Route>
           <Route>
-            <Error />
+            <div className="container w-1/1 mx-auto my-5">
+              You done error'd.
+            </div>
           </Route>
         </Switch>
       </div>
     </Router>
   );
-}
-
-function Home() {
-  return (<h2>Home</h2>);
-}
-
-function About() {
-  return <h2>About</h2>;
-}
-
-function Error() {
-  return <h2>It appears you have 404'd</h2>;
 }

@@ -1,0 +1,36 @@
+{
+  "name": "find-your-ross",
+  "version": "0.0.1",
+  "homepage": "./",
+  "private": true,
+  "dependencies": {
+    "papaparse": "^5.1.0",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-router-dom": "^5.1.2",
+    "react-scripts": "3.2.0",
+    "tailwindcss": "^1.1.3"
+  },
+  "scripts": {
+    "tailwindcss": "npx tailwind build src/styles/main.css -o src/styles/complied.css",
+    "start": "react-scripts start && tailwindcss",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}

@@ -1,7 +1,7 @@
 import React, {useMemo} from 'react';
 
 // The actual filter component
-export default function Ross(props) {
+export default function Painting(props) {
 
 	// In order to not re-loop the ross details we will useMemo them. This only needs to do once since they don't change.
 	let rossFeatures = useMemo(()=>{
@@ -14,8 +14,9 @@ export default function Ross(props) {
 		return features
 	},[props.details])
 
-	return (<li className="p-3 w-full md:w-1/2 lg:w-1/3 xl:w-1/4">
-		<h3 className="font-extrabold text-center">{props.details.EPISODE+' - '+props.details.TITLE}</h3>
-		<span className="font-light italic lowercase text-gray-600">{rossFeatures.map(c=>c.replace('_',' ').toLowerCase()).join(', ')}</span>
+	return (<li data-index={props.paintingIndex} className="painting p-2 w-full md:w-1/2 lg:w-1/3 xl:w-1/4" onClick={props.displayDetails}>
+		<div className="painting-wrap relative cursor-pointer">
+			<img src={require('../img/'+props.details.img_src)}/>
+		</div>
 	</li>);
 }

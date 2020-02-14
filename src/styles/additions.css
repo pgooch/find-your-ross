@@ -1,0 +1,34 @@
+/* I want a semi-transparent backgroud for the haver title */
+.painting-wrap:hover{
+    box-shadow: 0px 1px 3px rgba(0,0,5,.75);
+}
+.painting-wrap .painting-title{
+    transition: opacity .333s;
+}
+.painting-wrap:hover .painting-title{
+    opacity: 1;
+}
+.painting-title{
+    opacity: 0;
+    background-color: rgba(0,0,0,.75);
+    color: #ffffff;
+}
+
+/* This is for the square that becomes an arrow to the selected painting */
+#connecting-bit{
+    border: 50px solid transparent;
+    border-bottom: 50px solid black;
+    width: 0px;
+    height: 0px;
+    margin-top:-88px; /* we drop an extra 12 to compensate for the padding */
+    z-index: 1;
+}
+#connecting-bit-outline{
+    border: 60px solid transparent;
+    border-bottom: 60px solid white;
+    width: 0px;
+    height: 0px;
+    margin-top:-108px; /* as above put +10 for each side */
+    margin-left:-10px; /* so we can use the same math as the above int he JS offset it's width here */
+    z-index: 0;
+}

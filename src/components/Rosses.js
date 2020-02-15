@@ -208,6 +208,7 @@ export function Rosses(){
 			setSelectedPainting(document.querySelector('li.painting.open').dataset.index)
 		}else{
 			document.getElementById('painting-details').classList.remove('active')
+			setSelectedPainting(-1)
 		}
 	}
 
@@ -226,7 +227,7 @@ export function Rosses(){
 			<li id="painting-details" className="relative text-white w-full">
 				<div id="connecting-bit" className="absolute">&nbsp;</div>
 				<div id="connecting-bit-outline" className="absolute">&nbsp;</div>
-				<div className="bg-black p-2 mx-2 my-1 relative">
+				<div id="details-wrapper" className="bg-black p-2 mx-2 my-1 relative">
 					<PaintingDetails paintingIndex={getSelectedPainting} details={getRosses[getSelectedPainting]} />
 				</div>
 			</li>

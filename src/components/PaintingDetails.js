@@ -88,7 +88,7 @@ function BrushIcon(props){
 function Frame(props){
     if(props.frameDetails.length>0){
         const frames = props.frameDetails.map((frame)=>{
-            return frame.replace(/_/g,' ').replace('frame','').trim()
+            return frame.replace(/_/g,' ').replace('Frame','').trim()
         })
         return (<span className="frameDetails">, and {frames.join(', ')} framed.</span>)
     }else{ // No frame, no return

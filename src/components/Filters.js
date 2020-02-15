@@ -65,7 +65,7 @@ export function Filters() {
 		setFilters({...getFilters})
 	}
 
-	return (<form className="container w-1/1 mx-auto my-5">
+	return (<form className="container w-1/1 mx-auto my-5" style={{display:"none"}}>
 
 		<fieldset className="border-green-700 border-t-8">
 			<legend className="text-green-800 font-bold pr-2 text-lg">Trees</legend>

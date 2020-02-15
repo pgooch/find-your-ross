@@ -2,10 +2,9 @@ import React, {useContext,useState,useEffect} from 'react';
 import {FilterContext} from './Filters.js';
 import Parser from 'papaparse';
 import Painting from './Painting.js';
-import rossData from './ross-data.csv';
+import PaintingDetails from './PaintingDetails.js';
+import rossData from '../ross-data.csv';
 import { Redirect } from 'react-router-dom';
-// This is the location of that ross data file
-// const rossData = './ross-data.csv';
 
 export function Rosses(){ 
 
@@ -15,7 +14,7 @@ export function Rosses(){
 	// We use a little state here, one for the data (that we only load once) and one for the results (which we fiddle with)
 	const [getRosses,setRosses] = useState([]);
 	const [getFilteredRosses,setFilteredRosses] = useState([])
-	const [getSelectedPainting,setSelectedPainting] = useState([])
+	const [getSelectedPainting,setSelectedPainting] = useState(-1,[])
 
 	// And maybe another to keep track of sets of filters so we don't have to refigure that every render
 	const [getFilterDetails,setFilterDetails] = useState({})
@@ -49,13 +48,11 @@ export function Rosses(){
 
 	// Load the rosses
 	useEffect(()=>{
-		console.log('rossData',rossData)
 		Parser.parse(rossData, {
 			header: true,
 			download: true,
 			skipEmptyLines: true,
 			complete: function(results) {
-				console.log('results.data',results.data)
 				setRosses(results.data)
 			}
 		});
@@ -161,7 +158,7 @@ export function Rosses(){
 	},[])
 
 	// This compares the position of the open paintings element with those around it and returns the first element we need to place the details before in order to put in between rows
-	function getInsertBeforeElement(){
+	function getInsertBeforeElement(resize=false){
 		
 		// Before we move the details panel to it's new home we have to reset it to the bottom or else the browser may not reflow the page properly (hiding it will cause it not to reflow if the area is outside the rendering view)
 		document.getElementById('painting-details').classList.remove('active')
@@ -172,41 +169,46 @@ export function Rosses(){
 		const wrapperLeft = document.getElementById('ross-paintings').getBoundingClientRect().left;
 		const paintingLeft = document.querySelector('li.painting.open').getBoundingClientRect().left;
 		const paintingWidth = document.querySelector('li.painting.open').offsetWidth
-		const conectorWidth = document.getElementById('connecting-bit').offsetWidth
+		const conectorWidth = 100; // it's 0px withe with 2 50px borders
 
 		// This grabs the starting element based on it having the "open" class and moved the details panel to the appropriate position in the dom
 		let nextPossibleElement = document.querySelector('li.painting.open').nextSibling
-		while(nextPossibleElement.getBoundingClientRect().top <= startingTop){
+		while(nextPossibleElement!==null && nextPossibleElement.getBoundingClientRect().top <= startingTop){
 			nextPossibleElement = nextPossibleElement.nextSibling
 		}
 		
-		// Lets resize that diamond now
-		document.getElementById('connecting-bit').style.left = (paintingLeft-wrapperLeft+(paintingWidth-conectorWidth)/2)+'px'
-		document.getElementById('connecting-bit-outline').style.left = (paintingLeft-wrapperLeft+(paintingWidth-conectorWidth)/2)+'px'
+		// Lets reposition that diamond now
+		document.getElementById('connecting-bit').style.left = (paintingLeft-wrapperLeft+(paintingWidth/2)-(conectorWidth/2))+'px'
+		document.getElementById('connecting-bit-outline').style.left = (paintingLeft-wrapperLeft+(paintingWidth/2)-(conectorWidth/2))+'px'
 
-		// This gets the element we want to move around for the details and moved it to where we want, then makes it visible again and position the browser window in a good spot
-		nextPossibleElement.before(document.getElementById('painting-details'))
+		// This gets the element we want to move around for the details and moved it to where we want, then makes it visible again
+		if(nextPossibleElement!==null){
+			nextPossibleElement.before(document.getElementById('painting-details'))
+		}else{ // In case you click on the last row, or I guess something else goes horribly wrong, place it at the
+			document.querySelector('li.painting:last-child').after(document.getElementById('painting-details'))
+		}
 		document.getElementById('painting-details').classList.add('active')
-		window.scrollTo({
-			top: window.scrollY+startingTop,
-			left: 0,
-			behavior: 'smooth'
-		  });
-
-
+		
+		// scroll window into position, smooth scrolling can have weird effects, so jump to it for easier use also it's disorinting when it happens on resize, so not then
+		if(!resize){
+			window.scrollTo(0,window.scrollY+document.querySelector('li.painting.open').getBoundingClientRect().top);
+		}
 	}
-	window.onresize = getInsertBeforeElement
+	window.onresize = ()=>{
+		if(document.querySelector('li.painting.open')!==null){
+			getInsertBeforeElement(true)
+		}
+	}
 
 	// This will reposition the details block and proceed to figure out what to put in it.
 	function displayDetails(event){
-		// Note which element is open, making sure all others are closed, this is used for detail pane placement maths
 		if(document.querySelector('li.painting.open')!==null){
-			document.querySelector('li.painting.open').classList.remove('open')
+			getInsertBeforeElement()
+			// Update which painting we are looking at, this will be used to load the content
+			setSelectedPainting(document.querySelector('li.painting.open').dataset.index)
+		}else{
+			document.getElementById('painting-details').classList.remove('active')
 		}
-		event.nativeEvent.target.closest('li.painting').classList.add('open')
-		getInsertBeforeElement()
-		// Update which painting we are looking at, this will be used to load the content
-		setSelectedPainting(document.querySelector('li.painting.open').dataset.index)
 	}
 
 	// The actual output of the Rosses
@@ -224,9 +226,8 @@ export function Rosses(){
 			<li id="painting-details" className="relative text-white w-full">
 				<div id="connecting-bit" className="absolute">&nbsp;</div>
 				<div id="connecting-bit-outline" className="absolute">&nbsp;</div>
-				<div className="bg-black p-2 mx-2 my-1 relative text-center italic">
-					Learning more about this Bob Ross painting #{getSelectedPainting}
-					<pre>{JSON.stringify(getRosses[getSelectedPainting],null,2)}</pre>
+				<div className="bg-black p-2 mx-2 my-1 relative">
+					<PaintingDetails paintingIndex={getSelectedPainting} details={getRosses[getSelectedPainting]} />
 				</div>
 			</li>
 		</ol>

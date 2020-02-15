@@ -17,7 +17,7 @@
 /* This is for the square that becomes an arrow to the selected painting */
 #connecting-bit{
     border: 50px solid transparent;
-    border-bottom: 50px solid black;
+    border-bottom: 50px solid #010101;
     width: 0px;
     height: 0px;
     margin-top:-88px; /* we drop an extra 12 to compensate for the padding */
@@ -25,10 +25,34 @@
 }
 #connecting-bit-outline{
     border: 60px solid transparent;
-    border-bottom: 60px solid white;
+    border-bottom: 60px solid #fefefe;
     width: 0px;
     height: 0px;
-    margin-top:-108px; /* as above put +10 for each side */
+    margin-top:-112px; /* as above put +10 for each side */
     margin-left:-10px; /* so we can use the same math as the above int he JS offset it's width here */
     z-index: 0;
+}
+
+/* These hide the details pane when not needed and show it when needed */
+#painting-details{
+    display: none;
+}
+#painting-details.active{
+    display: block;
+}
+
+/* Paint prushes and the words next to them */
+.color-cell svg{
+    display:inline;
+    height:25px;
+}
+.color-cell svg path{
+    stroke-width:25px
+}
+.color-cell span{
+    text-stroke-width: 1px;
+    -webkit-text-stroke-width: .5px;
+}
+.underlined-color{
+    border-bottom: 5px solid #010101;
 }

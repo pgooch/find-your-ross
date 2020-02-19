@@ -1,18 +1,24 @@
 import React, {useContext,useState,useEffect} from 'react';
-import {FilterContext} from './Filters.js';
 import Parser from 'papaparse';
-import Painting from './Painting.js';
-import PaintingDetails from './PaintingDetails.js';
-import rossData from '../ross-data.csv';
 import { Redirect } from 'react-router-dom';
 
-export function Rosses(){ 
+import {FilterContext} from './Filters.js';
+
+import Painting from './Painting.js';
+import PaintingDetails from './PaintingDetails.js';
+import FilteringMessage from './FilteringMessage.js'
+
+// This data file is a combination of 2 data files made by /setup.js, create with 'npm run setup'
+import rossData from '../ross-data.csv';
+
+export default function Rosses(){ 
 
 	// grad the FilterContext to determine the correct Rosses to show
 	const {getFilters,setFilters} = useContext(FilterContext)
 
 	// We use a little state here, one for the data (that we only load once) and one for the results (which we fiddle with)
 	const [getRosses,setRosses] = useState([]);
+	const [isLoading,setLoading] = useState(true)
 	const [getFilteredRosses,setFilteredRosses] = useState([])
 	const [getSelectedPainting,setSelectedPainting] = useState(-1,[])
 
@@ -20,31 +26,31 @@ export function Rosses(){
 	const [getFilterDetails,setFilterDetails] = useState({})
 
 	// Once the filters have loaded process the more complex ones to build out arrays needed to actually filter. It was this or manually make them.
-	useEffect(()=>{
-		let buildFilterDetails = getFilterDetails;
-		document.querySelectorAll('fieldset').forEach((fieldset)=>{
-			// filters can consist of many inputs or a single selector (for now)
-			let name = fieldset.querySelector('input,select').name;
-			buildFilterDetails[name] = [];
-			// This will fill that build array with all the possible options 
-			fieldset.querySelectorAll('input').forEach((input)=>{
-				buildFilterDetails[name].push(input.value)
-			})
-			fieldset.querySelectorAll('select option').forEach((option)=>{
-				buildFilterDetails[name].push(option.value)
-			})
-			// This will filter out and of the specially handled values, as we don't need them for this.
-			Object.keys(buildFilterDetails).forEach((key)=>{
-				buildFilterDetails[key] = buildFilterDetails[key].filter((option)=>{
-					if(['*','any','none'].indexOf(option)>-1){
-						return false
-					}
-					return true
-				})
-			})
-		});
-		setFilterDetails(buildFilterDetails);
-	},[])
+	// useEffect(()=>{
+	// 	let buildFilterDetails = getFilterDetails;
+	// 	document.querySelectorAll('fieldset').forEach((fieldset)=>{
+	// 		// filters can consist of many inputs or a single selector (for now)
+	// 		let name = fieldset.querySelector('input,select').name;
+	// 		buildFilterDetails[name] = [];
+	// 		// This will fill that build array with all the possible options 
+	// 		fieldset.querySelectorAll('input').forEach((input)=>{
+	// 			buildFilterDetails[name].push(input.value)
+	// 		})
+	// 		fieldset.querySelectorAll('select option').forEach((option)=>{
+	// 			buildFilterDetails[name].push(option.value)
+	// 		})
+	// 		// This will filter out and of the specially handled values, as we don't need them for this.
+	// 		Object.keys(buildFilterDetails).forEach((key)=>{
+	// 			buildFilterDetails[key] = buildFilterDetails[key].filter((option)=>{
+	// 				if(['*','any','none'].indexOf(option)>-1){
+	// 					return false
+	// 				}
+	// 				return true
+	// 			})
+	// 		})
+	// 	});
+	// 	setFilterDetails(buildFilterDetails);
+	// },[])
 
 	// Load the rosses
 	useEffect(()=>{
@@ -61,99 +67,101 @@ export function Rosses(){
 	// Filter the Rosses
 	useEffect(()=>{
 		let filteredRosses = getRosses;
-		Object.keys(getFilters).forEach((filter)=>{
+		// setFiltering(true)
+		// Object.keys(getFilters).forEach((filter)=>{
 
-			// * means skip, otherwise start filtering the ross 
-			if(getFilters[filter]!=='*'){
-				filteredRosses = filteredRosses.filter((ross)=>{
+		// 	// * means skip, otherwise start filtering the ross 
+		// 	if(getFilters[filter]!=='*'){
+		// 		filteredRosses = filteredRosses.filter((ross)=>{
 
-					// any means, well, any of the below filter options 
-					if(getFilters[filter]==='any'){
-						let thisRossKept = false; // once we know it's true we don't need to bother
-						getFilterDetails[filter].forEach((option)=>{
-							if(thisRossKept===false){
-								if(ross[option.toUpperCase()]==='1'){
-									thisRossKept = true;
-								}
-							}
-						})
-						return thisRossKept
+		// 			// any means, well, any of the below filter options 
+		// 			if(getFilters[filter]==='any'){
+		// 				let thisRossKept = false; // once we know it's true we don't need to bother
+		// 				getFilterDetails[filter].forEach((option)=>{
+		// 					if(thisRossKept===false){
+		// 						if(ross[option.toUpperCase()]==='1'){
+		// 							thisRossKept = true;
+		// 						}
+		// 					}
+		// 				})
+		// 				return thisRossKept
 
-					// none means none of the filter options
-					}else if(getFilters[filter]==='none'){
-						let thisRossKept = true;
-						getFilterDetails[filter].forEach((option)=>{
-							if(thisRossKept===true){
-								if(ross[option.toUpperCase()]==='1'){
-									thisRossKept = false;
-								}
-							}
-						})
-						return thisRossKept
+		// 			// none means none of the filter options
+		// 			}else if(getFilters[filter]==='none'){
+		// 				let thisRossKept = true;
+		// 				getFilterDetails[filter].forEach((option)=>{
+		// 					if(thisRossKept===true){
+		// 						if(ross[option.toUpperCase()]==='1'){
+		// 							thisRossKept = false;
+		// 						}
+		// 					}
+		// 				})
+		// 				return thisRossKept
 
-					// This is the others, some things that may not be covered by the above, including handling individual options
-					}else{
-						let thisFiltersValues = getFilters[filter].split(',');
-						let thisRossKept = true
-						thisFiltersValues.forEach((filterValue)=>{
+		// 			// This is the others, some things that may not be covered by the above, including handling individual options
+		// 			}else{
+		// 				let thisFiltersValues = getFilters[filter].split(',');
+		// 				let thisRossKept = true
+		// 				thisFiltersValues.forEach((filterValue)=>{
 
-							// Sometimes we may need to adjust the filters, switch it
-							let rossKeys = [filterValue.toUpperCase()];
-							let checkValues = ['1']; // the CSV contains strings on 1 or 0
-							switch(filter){
-								case 'trees':
-									switch(filterValue){
-										case 'no':
-											// There are two column about trees; TREE and TREES, while the CSV seems to follow the logic I'll check for both since I can
-											rossKeys[0] = 'TREE';
-											checkValues[0] = '0';
-											rossKeys[1] = 'TREES';
-											checkValues[1] = '0';
-										break;
-										case 'one':
-											// A forest has many trees, but a single tree is special
-											rossKeys[0] = 'TREE';
-											checkValues[0] = '1';
-											rossKeys[1] = 'TREES';
-											checkValues[1] = '0';
-										break;
-										case 'many':
-										default:
-											// Fuck my shit up with some trees
-											rossKeys[0] = 'TREES';
-											checkValues[0] = '1';
-										break;
-									}
-								break;
-								default:
-									// the pre-set value of rossKey is the default
-								break;
-							}
+		// 					// Sometimes we may need to adjust the filters, switch it
+		// 					let rossKeys = [filterValue.toUpperCase()];
+		// 					let checkValues = ['1']; // the CSV contains strings on 1 or 0
+		// 					switch(filter){
+		// 						case 'trees':
+		// 							switch(filterValue){
+		// 								case 'no':
+		// 									// There are two column about trees; TREE and TREES, while the CSV seems to follow the logic I'll check for both since I can
+		// 									rossKeys[0] = 'TREE';
+		// 									checkValues[0] = '0';
+		// 									rossKeys[1] = 'TREES';
+		// 									checkValues[1] = '0';
+		// 								break;
+		// 								case 'one':
+		// 									// A forest has many trees, but a single tree is special
+		// 									rossKeys[0] = 'TREE';
+		// 									checkValues[0] = '1';
+		// 									rossKeys[1] = 'TREES';
+		// 									checkValues[1] = '0';
+		// 								break;
+		// 								case 'many':
+		// 								default:
+		// 									// Fuck my shit up with some trees
+		// 									rossKeys[0] = 'TREES';
+		// 									checkValues[0] = '1';
+		// 								break;
+		// 							}
+		// 						break;
+		// 						default:
+		// 							// the pre-set value of rossKey is the default
+		// 						break;
+		// 					}
 
-							// We default to the ross staying, but sometimes it sadly must go. Tis better to have Rossed and lost then never to have Rossed at all.
-							rossKeys.forEach((rossKey,index)=>{
-								if(ross[rossKey]!==checkValues[index]){
-									thisRossKept = false;
-								}
-							})
-						})
-						return thisRossKept
-					}
-				})
-			}
-		})
+		// 					// We default to the ross staying, but sometimes it sadly must go. Tis better to have Rossed and lost then never to have Rossed at all.
+		// 					rossKeys.forEach((rossKey,index)=>{
+		// 						if(ross[rossKey]!==checkValues[index]){
+		// 							thisRossKept = false;
+		// 						}
+		// 					})
+		// 				})
+		// 				return thisRossKept
+		// 			}
+		// 		})
+		// 	}
+		// })
 		setFilteredRosses(filteredRosses);
 
-		// And you can return a function to be run for cleanup, in this specific case I probably don't want to cleanup, but hey - this is mostly an example of how to do it.
+		// Once all the above is done this cleanup is called, we use it to set the loading state to done so we can swap the loading message for the content.
 		return function cleanup(){
-			console.log('The cleanup function of the Filter Rosses useEffect has been called, congratulations. This should run every time the component is unmounted, but React also runs it before re-running the effect for because it wants to help. If you don\'t want it\'s help you can work around it, in this case the alert only appears on unload because I created a second useEffect to do it, which seems to be the standard solution to the problem when investigating.')
+			setLoading(false)
 		}
 	},[getRosses,getFilters])
 
 	// Component Will Unmount
 	useEffect(()=>{
 		return ()=>{
-			alert('The Rosses.js component is really going to unmount.')
+			// This was added to have a visual of this working as componentWillUnmount for a demo, it serves no purpose.
+			// alert('The Rosses.js component is really going to unmount.')
 		}
 	},[])
 
@@ -212,14 +220,17 @@ export function Rosses(){
 		}
 	}
 
-	// The actual output of the Rosses
+	// The actual output of the Rosses or the loading message thats so fast you'll never see it.
+	if(isLoading || getRosses.length<=0){
+		return (<div className="text-center text-rossBlue text-xl italic">One moment while I beat the devil out that data.</div>)
+	}
 	return (<div>
 		<pre style={{display:'none'}}>
 			The Rosses, filtered as described above, go here.
 			Those filters would be: 
 			{JSON.stringify(getFilters,null,3)}
 		</pre>
-		<h2 className="font-bold text-center text-lg">Your current filters leave you with {Math.round((getFilteredRosses.length/getRosses.length)*1000)/10}% of paintings matching ({getFilteredRosses.length}/{getRosses.length}).</h2>
+		<FilteringMessage totalCount={getRosses.length} filteredCount={getFilteredRosses.length} />
 		<ol id="ross-paintings" className="container flex flex-wrap mx-auto my-5">
 			{getFilteredRosses.map((ross,index)=>{
 				return (<Painting key={ross.episode} paintingIndex={index} details={ross} displayDetails={displayDetails}/>)

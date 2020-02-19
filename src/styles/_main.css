@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css?family=Caveat+Brush&display=swap');
+@import "./markdown.css";
 @import "./additions.css";
 @tailwind base;
 @tailwind components;

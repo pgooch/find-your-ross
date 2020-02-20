@@ -17,8 +17,8 @@ export default function Painting(props) {
 	}
 
 	// Simple output
-	return (<li data-index={props.paintingIndex} className="painting p-2 w-full md:w-1/2 lg:w-1/3 xl:w-1/4" onClick={toggleDetails}>
-		<div className="painting-wrap relative cursor-pointer">
+	return (<li data-index={props.paintingIndex} className="text-center painting p-2 w-full md:w-1/2 lg:w-1/3 xl:w-1/4" onClick={toggleDetails}>
+		<div className="inline-block painting-wrap relative cursor-pointer">
 			<img src={require('../../img/'+props.details.img_src)} alt={props.details.painting_title+' Image'}/>
 		</div>
 	</li>);

@@ -38,22 +38,22 @@ export default function PaintingDetails(props) {
 
     // The painting details box contents, finally
 	return (<>
-        <div className="header float-right p-2 pt-0 text-center w-1/2">
+        <div className="header float-clear md:float-right p-2 pt-0 text-center w-full md:w-1/2">
             <h2 className="font-fancy text-3xl">{painting.painting_title}</h2>
             <div className="">
                 {painting.episode} <Artist guestDetails={guestPainter} />
             </div>
         </div>
-        <div className="video float-left p-2 w-1/2">
+        <div className="video float-clear md:float-left p-2 w-full md:w-1/2">
             <iframe width="100%" height="315" className="video-container" src={painting.youtube_src}>You need iframes to watch Bob Ross do his thing.</iframe>
         </div>
-        <div className="details float-right p-2 w-1/2">
+        <div className="details float-clear md:float-right p-2 w-full md:w-1/2">
             <div>
                 Tagged; {paintingElements.join(`, `)}
                 <Frame frameDetails={frameDetails} />
             </div>
         </div>
-        <ol className="colors float-right p-2 w-1/2">{parsedColorNames.map((colorName,index)=>{
+        <ol className="colors float-clear md:float-right p-2 w-full md:w-1/2">{parsedColorNames.map((colorName,index)=>{
                 return (<BrushIcon key={'color'+index} colorName={colorName} colorHex={parsedColorValues[index]} />)
             })}</ol>
         <div className="clearfix"></div>

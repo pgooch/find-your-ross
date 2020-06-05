@@ -7,7 +7,7 @@ export default function About(){
 
 	// Load the readme
 	const [getReadme,setReadme] = useState('');
-	fetch(require('../_linked_readme.md'))
+	fetch(require('./_linked_readme.md'))
 	.then((r)=>{
 		return r.text()
 	})

@@ -9,10 +9,10 @@ export default function Header(props) {
         <nav className="container w-1/1 mx-auto mb-6">
           <ul className="text-center">
             <li className="inline-block">
-              <Link className="p-3" to="/">Home</Link>
+              <Link className="p-3" to={''}>Home</Link>
             </li>
             <li className="inline-block">
-              <Link className="p-3" to="/about">About</Link>
+              <Link className="p-3" to={'about'}>About</Link>
             </li>
           </ul>
         </nav>

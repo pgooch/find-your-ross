@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
 import {
-  BrowserRouter as Router,
+  HashRouter,
   Switch,
   Route
 } from "react-router-dom";
@@ -19,14 +19,14 @@ export default function App() {
 
   // The main content output router
   return (
-    <Router>
+    <HashRouter>
       <Header />
       <div>
         <Switch>
-          <Route exact path="/about">
+          <Route path="*/about">
             <About />
           </Route>
-          <Route exact path="/">
+          <Route path="*/">
             <FilterContext.Provider value={{getFilters,setFilters}}>
               <Filters />
               <Rosses />
@@ -40,6 +40,6 @@ export default function App() {
         </Switch>
       </div>
       <Footer />
-    </Router>
+    </HashRouter>
   );
 }

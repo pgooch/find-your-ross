@@ -20,7 +20,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "react-scripts build && mv build docs",
     "build:css": "postcss src/styles/_main.css -o src/styles.css",
     "test": "react-scripts test",
     "eject": "react-scripts eject",

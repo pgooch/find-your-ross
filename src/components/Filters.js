@@ -1,247 +1,126 @@
 import React, {useContext} from 'react';
-// The default values for the filter
-export const filtersDefault = {
-	trees: 	 '*',
-	frame: 	 '*',
-	water:   '*',
-	manmade: '*',
+import { Autocomplete } from '@material-ui/lab';
+import { TextField } from '@material-ui/core';
+
+
+
+// This is the data used in the autocomplete based filtering system.
+const filterSuggestions = {
+	"Sort": {
+		groupLabel: "You can view your world however you want, it's yours.",
+		limitCatagory: true,
+		values: ['In Airing Order','Ordered by Title','Ordered by Number of Colors'],
+	},
+	"Trees": {
+		groupLabel: "Happy little trees, you can only select one of these.",
+		limitCatagory: true,
+		values: ["No Trees","One Tree","Many Trees","Palm Trees"],
+	},
+	"Nature": {
+		groupLabel: "The wounderful splender of Mother Nature.",
+		values: ['aurora_borealis','beach','bushes','cactus','cirrus','cliff','clouds','conifer','cumulus','deciduous','flowers','fog','grass','hills','lake','lakes','moon','mountain','mountains','night','ocean','river','rocks','snow','snowy_mountain','sun','waterfall','waves','winter'],
+	},
+	"Manmade": {
+		groupLabel: "People can build anything, all they need is a little imagination.",
+		values: ['barn','boat','bridge','building','cabin','dock','farm','fence','fire','lighthouse','mill','path','person','portrait','structure','windmill'],
+	},
+	"Colors": {
+		groupLabel: "Mix those colors till you get a shade that makes you happy.",
+		values: ['black_gesso','bright_red','burnt_umber','cadmium_yellow','dark_sienna','indian_red','indian_yellow','liquid_black','liquid_clear','midnight_black','phthalo_blue','phthalo_green','prussian_blue','sap_green','titanium_white','van_dyke_brown','yellow_ochre','alizarin_crimson'],
+	},
+	"Frame": {
+		groupLabel: "We're gonna work on something a little special today.",
+		values: ['apple_frame','circle_frame','double_oval_frame','florida_frame','framed','half_circle_frame','half_oval_frame','oval_frame','rectangle_3d_frame','rectangular_frame','seashell_frame','split_frame','tomb_frame','triple_frame','window_frame','wood_framed'],
+	},
+	"Painter": {
+		groupLabel: (<span>You can paint with your friends, but it's hard to paint <i>with</i> your friends.</span>),
+		limitCatagory: true,
+		values: ['Bob Ross','Steve Ross','Diane André','A Friend of Bob Ross'],
+	},
 }
+
+// This converts that more user-friendly data format into somewthing the material-ui's autocomplete can jive with.
+const prepareFilterSuggestions = (filterSuggestions) => {
+	let array = [];
+
+	Object.keys(filterSuggestions).forEach((category)=>{
+		filterSuggestions[category].values.forEach((value,index)=>{
+
+		  	let label = value.split('_').map((word)=>{
+		  		return word.charAt(0).toUpperCase()+word.slice(1);
+		  	}).join(' ');
+
+			array.push({
+				label: label,
+				value: value,
+				category: category,
+				categoryRestricted: !!filterSuggestions[category].limitCatagory,
+				groupName: filterSuggestions[category].groupLabel,
+				index: index
+			})
+		})
+	})
+
+	return array;
+}
+
+
+
+// The default values for the filter
+export const filtersDefault = []
 
 // Filter context shared between the Filters and the Rosses
 export const FilterContext = React.createContext(filtersDefault);
 
 // The actual filter component
 export function Filters() {
-
-	// Since we share the filters between the filters component and the rosses component we have to above, pull it in
 	const {getFilters, setFilters} = useContext(FilterContext)
+	return (<form className={"container flex flex-wrap mx-auto my-5 px-2"}>
+		<Autocomplete
+		  id="filter-suggestor"
+		  options={prepareFilterSuggestions(filterSuggestions)}
 
-	// Handle the update of the filters
-	function handleFilterUpdate(event){
-		
-		// We have special checkboxes that need to act like radios is some are selected, and normal checkboxes if others are selected. 
-		// Checkboxes are stored in a comma seperated string for simplicity
-		if(event.target.dataset.checkedAlone!==undefined){
-			// If it's one of the items that should be checked along clear all checked int he fieldset and then re-check the desired item
-			event.target.closest('fieldset').querySelectorAll('input[type="checkbox"]').forEach(input => {
-				input.checked = false;
-			});
-			event.target.checked = true;
-		}else{
-			// So you clicked one that isn't exclusive, so make sure none of the exclusive ones are checked.
-			event.target.closest('fieldset').querySelectorAll('input[type="checkbox"][data-checked-alone]').forEach(input => {
-				input.checked = false;
-			});
-		}
-		// And a final bit, if nothing is checked in checkbox section select the very first item in it
-		if(event.target.closest('fieldset[data-special-checkboxes]')!==null){
-			if(event.target.closest('fieldset').querySelectorAll('fieldset[data-special-checkboxes] input:checked').length===0){
-				event.target.closest('fieldset').querySelector('fieldset[data-special-checkboxes] input').checked = true
-			}
-		}
+		  getOptionLabel={(filter) => filter.label}
+		  renderOption={(option,state) => {
+		  	return (<div>{option.label}</div>)
+		  }}
+		  getOptionSelected={(option,value)=>{
+		  	return option.category === value.category && option.index === value.index
+		  }}
 
-		// Most are simply updated, but some need a little work before we can save their state
-		let newFilters = getFilters
-		switch(event.target.name){
+		  groupBy={(option)=>{
+		  	return option.groupName
+		  }}
+		  // renderGroup={(group)=>{
+		  // 	return (<div key={group.key}>
+		  // 		{group.group}
+		  // 		{group.children}
+		  // </div>)
+		  // }}
 
-			case 'water': 
-			case 'manmade':
-				let waterFeatures = [];
-				newFilters[event.target.name] = event.target.closest('fieldset').querySelectorAll('input[type="checkbox"]').forEach((input)=>{
-					if(input.checked){
-						waterFeatures.push(input.value)
+		  // This needs to check if the selected item is from a restricted group and if it is remove the existing value in exchange for the new one.
+		  onChange={(e,values)=>{
+		  	// If you want no filters I can save us both a lot of time here.
+		  	if(values.length===0){ setFilters([]); return false; }
+		  	// newest is always at the end.
+		  	let selected = values[values.length-1]; 
+		  	if(selected.categoryRestricted && values.length>1){
+		  		values = values.filter((value)=>{
+					if(selected.category===value.category && selected.index!==value.index){
+						return false;
+					}else{
+			  			return true;
 					}
-				})
-				newFilters[event.target.name] = waterFeatures.join(',')
-			break;
-			
-			// The majority of cases
-			default:
-				newFilters[event.target.name] = event.target.value;
-			break;
-		}
+		  		})
+		  	}
+		  	setFilters(values);
+		  }}
 
-		// Finally save
-		setFilters({...getFilters})
-	}
-
-	return (<form className="container w-1/1 mx-auto my-5" style={{display:"none"}}>
-
-		<fieldset className="border-green-700 border-t-8">
-			<legend className="text-green-800 font-bold pr-2 text-lg">Trees</legend>
-			<label htmlFor="trees-*" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.trees==='*'}    className="align-text-top mr-1" type="radio" name="trees" id="trees-*"  value="*" />
-				Irregardless of Trees
-			</label>
-			<label htmlFor="trees-no" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.trees==='no'}   className="align-text-top mr-1" type="radio" name="trees" id="trees-no"   value="no" />
-				No Trees
-			</label>
-			<label htmlFor="trees-one" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.trees==='one'}  className="align-text-top mr-1" type="radio" name="trees" id="trees-one"  value="one" />
-				One Tree
-			</label>
-			<label htmlFor="trees-many" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.trees==='many'} className="align-text-top mr-1" type="radio" name="trees" id="trees-many" value="many" />
-				Many Trees
-			</label>
-		</fieldset>
-		
-		<fieldset className="border-orange-700 border-t-8">
-			<legend className="text-orange-800 font-bold pr-2 text-lg">Frame</legend>
-			<label htmlFor="frame">
-				Frame
-				<select onChange={handleFilterUpdate} value={getFilters.frame} id="frame" name="frame">
-					<option value="*">Irregardless of Frame</option>
-					<option value="none">No Frame</option>
-					<option value="any">Any Frame</option>
-					<optgroup label="Specific Frame"></optgroup>
-					<option value="rectangle_3d_frame"	> 3D Rectangle	</option>
-					<option value="apple_frame"			> Apple			</option>
-					<option value="circle_frame"		> Circle		</option>
-					<option value="double_oval_frame"	> Double Oval	</option>
-					<option value="florida_frame"		> Florida		</option>
-					<option value="half_circle_frame"	> Half Circle	</option>
-					<option value="half_oval_frame"		> Half Oval		</option>
-					<option value="oval_frame"			> Oval			</option>
-					<option value="rectangular_frame"	> Rectangular	</option>
-					<option value="seashell_frame"		> Seashell		</option>
-					<option value="split_frame"			> Split			</option>
-					<option value="tomb_frame"			> Tomb			</option>
-					<option value="triple_frame"		> Triple		</option>
-					<option value="window_frame"		> Window		</option>
-					<option value="wood_framed"			> Wood			</option>
-				</select>
-			</label>
-		</fieldset>
-	
-		<fieldset data-special-checkboxes className="border-blue-700 border-t-8">
-			<legend className="text-blue-800 font-bold pr-2 text-lg">Water Element</legend>
-			<i className="float-right text-gray-500">Check all that apply</i>
-			<label htmlFor="water-*" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.water==='*'} data-checked-alone		className="align-text-top mr-1" type="checkbox" name="water" id="water-*" value="*" />
-				Irregardless of any Water Elements
-			</label>
-			<label htmlFor="water-any" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.water==='any'} data-checked-alone	className="align-text-top mr-1" type="checkbox" name="water" id="water-any" value="any" />
-				Any Water Element
-			</label>
-			<label htmlFor="water-none" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.water==='none'} data-checked-alone	className="align-text-top mr-1" type="checkbox" name="water" id="water-none" value="none" />
-				No Water Element
-			</label>
-			<br/>
-			<label htmlFor="water-dock" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.water==='dock'} 			className="align-text-top mr-1" type="checkbox" name="water" id="water-dock" value="dock" />
-				Dock
-			</label>
-			<label htmlFor="water-lake" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.water==='lake'} 			className="align-text-top mr-1" type="checkbox" name="water" id="water-lake" value="lake" />
-				Lake
-			</label>
-			{/* The CSV has a column for "lakes" but no ross is set as having "lakes" only "lake" so I'm hiding this here so the code is "complete" but not useless
-			<label htmlFor="water-lakes">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.water==='lakes'} 		className="align-text-top mr-1" type="checkbox" name="water" id="water-lakes" value="lakes" />
-				Lakes
-			</label>*/}
-			<label htmlFor="water-lighthouse" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.water==='lighthouse'} 	className="align-text-top mr-1" type="checkbox" name="water" id="water-lighthouse" value="lighthouse" />
-				Lighthouse
-			</label>
-			<label htmlFor="water-ocean" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.water==='ocean'} 		className="align-text-top mr-1" type="checkbox" name="water" id="water-ocean" value="ocean" />
-				Ocean
-			</label>
-			<label htmlFor="water-river" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.water==='river'} 		className="align-text-top mr-1" type="checkbox" name="water" id="water-river" value="river" />
-				River
-			</label>
-			<label htmlFor="water-waterfall" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.water==='waterfall'} 	className="align-text-top mr-1" type="checkbox" name="water" id="water-waterfall" value="waterfall" />
-				Waterfall
-			</label>
-			<label htmlFor="water-waves" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.water==='waves'} 		className="align-text-top mr-1" type="checkbox" name="water" id="water-waves" value="waves" />
-				Waves
-			</label>
-		</fieldset>
-
-		<fieldset data-special-checkboxes className="border-pink-700 border-t-8">
-			<legend className="text-pink-800 font-bold pr-2 text-lg">Manmade Objects</legend>
-			<i className="float-right text-gray-500">Check all that apply</i>
-			<label htmlFor="manmade-*" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.manmade==='*'} data-checked-alone		className="align-text-top mr-1" type="checkbox" name="manmade" id="manmade-*" value="*" />
-				Irregardless of any Man Made Objects
-			</label>
-			<label htmlFor="manmade-any" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.manmade==='any'} data-checked-alone		className="align-text-top mr-1" type="checkbox" name="manmade" id="manmade-any" value="any" />
-				Any Man Made Objects
-			</label>
-			<label htmlFor="manmade-none" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.manmade==='none'} data-checked-alone		className="align-text-top mr-1" type="checkbox" name="manmade" id="manmade-none" value="none" />
-				No Man Made Objects
-			</label>
-			<br/>
-			<label htmlFor="manmade-barn" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.manmade==='barn'} 		className="align-text-top mr-1" type="checkbox" name="manmade" id="manmade-barn" value="barn" />
-				Barn
-			</label>
-			<label htmlFor="manmade-boat" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.manmade==='boat'} 		className="align-text-top mr-1" type="checkbox" name="manmade" id="manmade-boat" value="boat" />
-				Boat
-			</label>
-			<label htmlFor="manmade-bridge" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.manmade==='bridge'} 		className="align-text-top mr-1" type="checkbox" name="manmade" id="manmade-bridge" value="bridge" />
-				Bridge
-			</label>
-			<label htmlFor="manmade-building" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.manmade==='building'} 	className="align-text-top mr-1" type="checkbox" name="manmade" id="manmade-building" value="building" />
-				Building
-			</label>
-			<label htmlFor="manmade-cabin" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.manmade==='cabin'} 		className="align-text-top mr-1" type="checkbox" name="manmade" id="manmade-cabin" value="cabin" />
-				Cabin
-			</label>
-			<label htmlFor="manmade-dock" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.manmade==='dock'} 		className="align-text-top mr-1" type="checkbox" name="manmade" id="manmade-dock" value="dock" />
-				Dock
-			</label>
-			<label htmlFor="manmade-farm" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.manmade==='farm'} 		className="align-text-top mr-1" type="checkbox" name="manmade" id="manmade-farm" value="farm" />
-				Farm
-			</label>
-			<label htmlFor="manmade-fence" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.manmade==='fence'} 		className="align-text-top mr-1" type="checkbox" name="manmade" id="manmade-fence" value="fence" />
-				Fence
-			</label>
-			<label htmlFor="manmade-fire" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.manmade==='fire'} 		className="align-text-top mr-1" type="checkbox" name="manmade" id="manmade-fire" value="fire" />
-				Fire
-			</label>
-			<label htmlFor="manmade-lighthouse" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.manmade==='lighthouse'} 	className="align-text-top mr-1" type="checkbox" name="manmade" id="manmade-lighthouse" value="lighthouse" />
-				Lighthouse
-			</label>
-			<label htmlFor="manmade-path" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.manmade==='path'} 		className="align-text-top mr-1" type="checkbox" name="manmade" id="manmade-path" value="path" />
-				Path
-			</label>
-			<label htmlFor="manmade-person" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.manmade==='person'} 		className="align-text-top mr-1" type="checkbox" name="manmade" id="manmade-person" value="person" />
-				Person
-			</label>
-			<label htmlFor="manmade-structure" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.manmade==='structure'} 	className="align-text-top mr-1" type="checkbox" name="manmade" id="manmade-structure" value="structure" />
-				Structure
-			</label>
-			<label htmlFor="manmade-windmill" className="mr-3 whitespace-no-wrap">
-				<input onClick={handleFilterUpdate} defaultChecked={getFilters.manmade==='windmill'} 	className="align-text-top mr-1" type="checkbox" name="manmade" id="manmade-windmill" value="windmill" />
-				Windmill
-			</label>
-
-
-
-		</fieldset>
-
+		  fullWidth={true}
+		  multiple={true}
+		  value={getFilters}
+		  noOptionsText="I'm sorry, but I don't have any filters that migh match that."
+		  renderInput={(params) => <TextField {...params} label="Start typing to search some happy paintings" variant="outlined" />}
+		/>
 	</form>);
 }

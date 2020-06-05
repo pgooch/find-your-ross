@@ -2,8 +2,6 @@
 
 Find your ross is a react app that will let you find just the Bob Ross episode you want based on some filtering options.
 
-This version should not be considered "done", I'm simply publishing it now so I can use it's code as an example, maybe some day this will get finished, but not today.
-
 ## Setup
 Before starting up this application in development mode or building a production ready version you must first prepare the data. This merges two different Bob Ross painting data sets and downloads the images from twoinchprush.com as to not waste their bandwidth. You can use the following command to run the startup script.
 ```

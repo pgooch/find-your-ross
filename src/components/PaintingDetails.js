@@ -45,7 +45,7 @@ export default function PaintingDetails(props) {
             </div>
         </div>
         <div className="video float-clear md:float-left p-2 w-full md:w-1/2">
-            <iframe width="100%" height="315" className="video-container" src={painting.youtube_src}>You need iframes to watch Bob Ross do his thing.</iframe>
+            <iframe width="100%" height="315" className="video-container" src={painting.youtube_src} title={painting.painting_title+" on YouTube"}>You need iframes to watch Bob Ross do his thing.</iframe>
         </div>
         <div className="details float-clear md:float-right p-2 w-full md:w-1/2">
             <div>

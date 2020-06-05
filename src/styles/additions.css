@@ -56,3 +56,34 @@
 .underlined-color{
     border-bottom: 5px solid #010101;
 }
+
+/* Turn those inputs into fancier boxes or something */
+fieldset span{
+    display:block;
+    padding: .125em;
+    text-align:center;
+}
+fieldset input{
+    width:0;
+    visibility: hidden;
+}
+fieldset label{
+    padding: .125em .5em .2em;
+    border-radius: 9001px;
+    font-weight:600;
+}
+fieldset input:checked + label{
+    color:white;
+}
+fieldset[name="trees"] label{                           color: #0a3410;}
+fieldset[name="trees"] input:checked + label{background-color: #0a5410;}
+fieldset[name="nature"] label{                           color: #0c0060;}
+fieldset[name="nature"] input:checked + label{background-color: #0c0060;}
+fieldset[name="manmade"] label{                           color: #422b25;}
+fieldset[name="manmade"] input:checked + label{background-color: #422b25;}
+fieldset[name="colors"] label{                           color: #103e5c;}
+fieldset[name="colors"] input:checked + label{background-color: #103e5c;}
+fieldset[name="frame"] label{                           color: #db0000;}
+fieldset[name="frame"] input:checked + label{background-color: #db0000;}
+fieldset[name="painter"] label{                           color: #000000;}
+fieldset[name="painter"] input:checked + label{background-color: #000000;}

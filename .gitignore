@@ -4,3 +4,4 @@ node_modules/**
 img/*.png
 .vscode
 .DS_Store
+.DS_Store

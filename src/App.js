@@ -6,7 +6,7 @@ import {
 } from "react-router-dom";
 
 // My Imports
-import './styles/_compiled.css';
+import './styles.css';
 import Rosses from './components/Rosses.js'
 import About from './components/About.js'
 import {Filters, filtersDefault, FilterContext} from './components/Filters.js'

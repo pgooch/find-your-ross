@@ -6,16 +6,16 @@
   "dependencies": {
     "@material-ui/core": "^4.10.1",
     "@material-ui/lab": "^4.0.0-alpha.55",
-    "autoprefixer": "^9.7.4",
+    "autoprefixer": "^9.8.0",
     "papaparse": "^5.2.0",
-    "postcss": "^7.0.27",
+    "postcss": "^7.0.32",
     "postcss-import": "^12.0.1",
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
     "react-markdown": "^4.3.1",
-    "react-router-dom": "^5.1.2",
-    "react-scripts": "^3.3.1",
-    "tailwindcss": "^1.2.0",
+    "react-router-dom": "^5.2.0",
+    "react-scripts": "^3.4.1",
+    "tailwindcss": "^1.4.6",
     "watch": "^1.0.2"
   },
   "scripts": {
